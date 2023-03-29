@@ -31,4 +31,24 @@ contract NemesisGameRewardDistributor is Ownable, AccessControl {
     require(IERC20(token).balanceOf(address(this)) >= reward, "not_enough_balance");
     TransferHelpers._safeTransferERC20(token, claimant, reward);
   }
+
+  function addDistributor(address account) external onlyOwner {
+    require(!hasRole(DISTRIBUTOR_ROLE, account), "already_a_distributor");
+    _grantRole(DISTRIBUTOR_ROLE, account);
+  }
+
+  function removeDistributor(address account) external onlyOwner {
+    require(hasRole(DISTRIBUTOR_ROLE, account), "not_a_distributor");
+    _revokeRole(DISTRIBUTOR_ROLE, account);
+  }
+
+  function claimERC20(address t, address to, uint256 amount) external onlyOwner {
+    require(IERC20(t).balanceOf(address(this)) >= amount, "not_enough_balance");
+    TransferHelpers._safeTransferERC20(t, to, amount);
+  }
+
+  function fillContractWithTokens(uint256 amount) external onlyOwner {
+    require(IERC20(token).allowance(_msgSender(), address(this)) >= amount, "not_enough_allowance_given");
+    TransferHelpers._safeTransferFromERC20(token, _msgSender(), address(this), amount);
+  }
 }
