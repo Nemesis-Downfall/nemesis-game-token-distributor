@@ -13,6 +13,10 @@ contract NemesisGameRewardDistributor is Ownable, AccessControl {
 
   bytes32 constant DISTRIBUTOR_ROLE = keccak256(abi.encodePacked("DISTRIBUTOR_ROLE"));
   address token;
+  mapping(address => mapping(uint256 => bool)) nonceUsed;
+  mapping(address => uint256) public nextNonce;
+
+  event RewardDistributed(address claimant, bytes signature, bytes32 messageHash, uint256 reward);
 
   constructor(address distributor, address _token) {
     require(_token.isContract(), "must_be_contract_address");
@@ -25,11 +29,18 @@ contract NemesisGameRewardDistributor is Ownable, AccessControl {
     return claimant == prefixedHashMessage.obtainSigner(signature);
   }
 
-  function distributeReward(address claimant, bytes32 messageHash, bytes memory signature, uint256 reward) external {
+  function distributeReward(address claimant, string memory randomId, uint256 nonce, bytes memory signature, uint256 reward) external {
+    bytes32 messageHash = keccak256(abi.encodePacked(randomId, "Nemesis_Downfall", nonce, reward));
     require(hasRole(DISTRIBUTOR_ROLE, _msgSender()), "only_distributor");
     require(canClaim(claimant, messageHash, signature), "player_can't_claim_now");
+    require(!nonceUsed[claimant][nonce], "nonce_already_used");
     require(IERC20(token).balanceOf(address(this)) >= reward, "not_enough_balance");
     TransferHelpers._safeTransferERC20(token, claimant, reward);
+
+    nonceUsed[claimant][nonce] = true;
+    nextNonce[claimant] = nextNonce[claimant] + 1;
+
+    emit RewardDistributed(claimant, signature, messageHash, reward);
   }
 
   function addDistributor(address account) external onlyOwner {
@@ -50,5 +61,10 @@ contract NemesisGameRewardDistributor is Ownable, AccessControl {
   function fillContractWithTokens(uint256 amount) external onlyOwner {
     require(IERC20(token).allowance(_msgSender(), address(this)) >= amount, "not_enough_allowance_given");
     TransferHelpers._safeTransferFromERC20(token, _msgSender(), address(this), amount);
+  }
+
+  function changeTokenAddress(address _token) external onlyOwner {
+    require(_token.isContract(), "must_be_contract_address");
+    token = _token;
   }
 }

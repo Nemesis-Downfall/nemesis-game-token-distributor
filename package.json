@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npx hardhat test",
     "format": "prettier --write **/**/*.{js,json,sol}"
   },
   "repository": {
@@ -22,9 +22,12 @@
     "@nomiclabs/hardhat-ethers": "^2.2.1",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
     "@openzeppelin/contracts": "^4.8.0",
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
     "ethereum-waffle": "^3.4.4",
     "ethers": "^5.7.2",
     "hardhat": "^2.12.4",
+    "mocha": "^10.2.0",
     "prettier-plugin-solidity": "^1.1.1"
   }
 }
