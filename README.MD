@@ -19,3 +19,10 @@ To fetch the next nonce for the player, call the `nextNonce` function of the dis
 The byte gotten from the previous step should be passed as an argument to a function that mimics Solidity's `keccak256` algorithm.
 
 *keccak_256(GENERATED_BYTE)*
+
+This hash has to be signed by the player using their wallet. Something like - `wallet.sign(GENERATED_HASH)`. The generated signature would be used in the final step.
+
+
+* **Calling the distribution function:**
+
+The tokens need to be claimed using the signature, the player's wallet address, and the data that was packed into the byte message. It should be done like this - `contract.distributeReward(WALLET_ADDRESS, RANDOM_STRING_FROM_FIRST_STEP, NONCE_FROM_A_PREVIOUS_STEP, GENERATED_SIGNATURE, ACTUAL_REWARD_IN_WEI)`. Note that the `distributeReward` function can only be called by a wallet address that is set as a distributor.
