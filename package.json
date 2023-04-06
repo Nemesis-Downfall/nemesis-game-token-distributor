@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npx hardhat test",
-    "format": "prettier --write **/**/*.{js,json,sol}"
+    "format": "prettier --write **/**/*.{js,json,sol}",
+    "deploy:testnet": "npx hardhat run scripts/deployer.js --network bscTestnet"
   },
   "repository": {
     "type": "git",
